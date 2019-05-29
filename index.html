@@ -1,7 +1,20 @@
 <html>
   <head>
     <title>QRCODE</title>
-    <style type="text/css"></style>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+      integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
+    ></script>
     <script type="text/javascript" src="grid.js"></script>
     <script type="text/javascript" src="version.js"></script>
     <script type="text/javascript" src="detector.js"></script>
@@ -21,232 +34,115 @@
     <script type="text/javascript" src="databr.js"></script>
 
     <style>
+      body {
+        padding: 0;
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      #msgBox {
+        position: absolute;
+        height: 95vh;
+        width: 100vw;
+        z-index: -1;
+
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+        -ms-overflow-style: -ms-autohiding-scrollbar;
+        flex-direction: column;
+      }
+
+      #video {
+        background: hsla(56, 55%, 6%, 0.794);
+        display: none;
+        width: 90%;
+        text-align: center;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 20px auto;
+      }
+
+      video {
+        position: relative;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
       #qr-canvas {
         display: none;
-      }
-      #result {
-        font-size: 1.5em;
-      }
-      #location {
-        font-size: 1.5em;
       }
     </style>
   </head>
 
   <body>
-    <div id="main">
-      <div id="mainbody">
-        <table class="tsel" border="0" width="100%">
-          <tr>
-            <td valign="top" align="center" width="50%">
-              <table class="tsel" border="0">
-                <tr>
-                  <td colspan="2" align="center">
-                    <div id="outdiv"></div>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3" align="center">
-              <img src="" />
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3" align="center">
-              <div id="result"></div>
-              <div id="location"></div>
-            </td>
-          </tr>
-        </table>
+    <section class="hero is-small has-background-white-ter">
+      <div class="hero-body is-small">
+        <div class="container">
+          <div class="columns is-mobile">
+            <div class="column is-centered">
+              <span class="icon" onclick="scanQR();">
+                <i class="fas fa-camera fa-lg"></i>
+              </span>
+            </div>
+            <div class="column is-centered">
+              <div class="tags">
+                <span id="location" class="tag  is-medium is-primary"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      &nbsp;
-      <div id="footer">
-        <h5 align="center"></h5>
-      </div>
+    </section>
+    <div id="msgBox"></div>
+    <div id="video" class="notification is-primary">
+      <button class="delete" onclick="closeCam();"></button>
+      <video id="v" autoplay></video>
+      <p id="result">- scaning -</p>
     </div>
-    <canvas id="qr-canvas" width="800" height="600"></canvas>
     <script>
-      var gCtx = null;
-      var gCanvas = null;
-      var c = 0;
-      var stype = 0;
-      var gUM = false;
-      var webkit = false;
-      var moz = false;
-      var v = null;
+      function fixNum(x, n) {
+        return Number(x).toFixed(n);
+      }
 
-      var vidhtml = '<video id="v" autoplay></video>';
+      function scanQR() {
+        $("#video")[0].style.display = "table";
+        qrcode.callback = read;
+        qrcode.setWebcam("v");
+      }
 
+      function read(a) {
+        $("#result").text(a);
+        setTimeout(closeCam, 3000);
+      }
+      function closeCam() {
+        qrcode.gUM = false;
+        $("#video")[0].style.display = "none";
+        $("#result").text("- scaning -");
+      }
       function scb(position) {
-        document.getElementById("location").innerHTML = `<p>${
-          position.coords.latitude
-        },   ${position.coords.longitude}, ${position.coords.altitude}</p>`;
+        x = position.coords.longitude;
+        y = position.coords.latitude;
+        $("#location").text(`${fixNum(x, 10)}, ${fixNum(y, 10)}, ${ooo++}`);
       }
       function fcb(position) {
         document.getElementById("location").innerHTML = `error`;
       }
-      setInterval(initGeo, 5000);
+      var ooo = 0;
+      initGeo();
       function initGeo() {
         if (navigator && navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(scb, fcb);
         } else {
           document.getElementById(
             "location"
-          ).innerHTML = `Geolocation is not supported`;
+          ).innerText = `Geolocation is not supported`;
         }
       }
-      function initCanvas(w, h) {
-        gCanvas = document.getElementById("qr-canvas");
-        gCanvas.style.width = w + "px";
-        gCanvas.style.height = h + "px";
-        gCanvas.width = w;
-        gCanvas.height = h;
-        gCtx = gCanvas.getContext("2d");
-        gCtx.clearRect(0, 0, w, h);
-      }
-
-      function captureToCanvas() {
-        if (stype != 1) return;
-        if (gUM) {
-          try {
-            gCtx.drawImage(v, 0, 0);
-            try {
-              qrcode.decode();
-            } catch (e) {
-              console.log(e);
-              setTimeout(captureToCanvas, 500);
-            }
-          } catch (e) {
-            console.log(e);
-            setTimeout(captureToCanvas, 500);
-          }
-        }
-      }
-
-      function htmlEntities(str) {
-        return String(str)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;");
-      }
-
-      function read(a) {
-        var html = "<br>";
-        if (a.indexOf("http://") === 0 || a.indexOf("https://") === 0)
-          html += "<a target='_blank' href='" + a + "'>" + a + "</a><br>";
-        html += "<b>" + htmlEntities(a) + "</b><br><br>";
-        document.getElementById("result").innerHTML = html;
-      }
-
-      function isCanvasSupported() {
-        var elem = document.createElement("canvas");
-        return !!(elem.getContext && elem.getContext("2d"));
-      }
-      function success(stream) {
-        v.srcObject = stream;
-        v.play();
-
-        gUM = true;
-        setTimeout(captureToCanvas, 500);
-      }
-
-      function error(error) {
-        gUM = false;
-        return;
-      }
-
-      function load() {
-        if (isCanvasSupported() && window.File && window.FileReader) {
-          initCanvas(800, 600);
-          qrcode.callback = read;
-          document.getElementById("mainbody").style.display = "inline";
-          setwebcam();
-        } else {
-          document.getElementById("mainbody").style.display = "inline";
-          document.getElementById("mainbody").innerHTML =
-            '<p id="mp1">QR code scanner for HTML5 capable browsers</p><br>' +
-            '<br><p id="mp2">sorry your browser is not supported</p><br><br>' +
-            '<p id="mp1">try <a href="http://www.mozilla.com/firefox"><img src="firefox.png"/></a> or <a href="http://chrome.google.com"><img src="chrome_logo.gif"/></a> or <a href="http://www.opera.com"><img src="Opera-logo.png"/></a></p>';
-        }
-      }
-      function setwebcam() {
-        var options = true;
-        if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-          try {
-            navigator.mediaDevices.enumerateDevices().then(function(devices) {
-              devices.forEach(function(device) {
-                if (device.kind === "videoinput") {
-                  if (device.label.toLowerCase().search("back") > -1)
-                    options = {
-                      deviceId: { exact: device.deviceId },
-                      facingMode: "environment"
-                    };
-                }
-                console.log(
-                  device.kind + ": " + device.label + " id = " + device.deviceId
-                );
-              });
-              setwebcam2(options);
-            });
-          } catch (e) {
-            console.log(e);
-          }
-        } else {
-          console.log("no navigator.mediaDevices.enumerateDevices");
-          setwebcam2(options);
-        }
-      }
-
-      function setwebcam2(options) {
-        console.log(options);
-        document.getElementById("result").innerHTML = "- scanning -";
-        if (stype == 1) {
-          setTimeout(captureToCanvas, 500);
-          return;
-        }
-        var n = navigator;
-        document.getElementById("outdiv").innerHTML = vidhtml;
-        v = document.getElementById("v");
-
-        if (n.mediaDevices.getUserMedia) {
-          n.mediaDevices
-            .getUserMedia({ video: options, audio: false })
-            .then(function(stream) {
-              success(stream);
-            })
-            .catch(function(error) {
-              error(error);
-            });
-        } else if (n.getUserMedia) {
-          webkit = true;
-          n.getUserMedia({ video: options, audio: false }, success, error);
-        } else if (n.webkitGetUserMedia) {
-          webkit = true;
-          n.webkitGetUserMedia(
-            { video: options, audio: false },
-            success,
-            error
-          );
-        }
-        stype = 1;
-        setTimeout(captureToCanvas, 500);
-      }
-
-      // function setimg() {
-      //   document.getElementById("result").innerHTML = "";
-      //   if (stype == 2) return;
-      //   document.getElementById("qrimg").style.opacity = 1.0;
-      //   document.getElementById("webcamimg").style.opacity = 0.2;
-      //   var qrfile = document.getElementById("qrfile");
-      //   qrfile.addEventListener("dragenter", dragenter, false);
-      //   qrfile.addEventListener("dragover", dragover, false);
-      //   qrfile.addEventListener("drop", drop, false);
-      //   stype = 2;
-      // }
-      load();
+      window.setInterval(initGeo, 10000);
     </script>
   </body>
 </html>

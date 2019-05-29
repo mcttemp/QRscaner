@@ -24,41 +24,22 @@
       #qr-canvas {
         display: none;
       }
+      #result {
+        font-size: 1.5em;
+      }
+      #location {
+        font-size: 1.5em;
+      }
     </style>
   </head>
 
   <body>
     <div id="main">
-      <div id="header">
-        <div style="position:relative;top:+20px;left:0px;">
-          <g:plusone size="medium"></g:plusone>
-        </div>
-      </div>
       <div id="mainbody">
         <table class="tsel" border="0" width="100%">
           <tr>
             <td valign="top" align="center" width="50%">
               <table class="tsel" border="0">
-                <tr>
-                  <td>
-                    <img
-                      class="selector"
-                      id="webcamimg"
-                      src=""
-                      onclick="setwebcam()"
-                      align="left"
-                    />
-                  </td>
-                  <td>
-                    <img
-                      class="selector"
-                      id="qrimg"
-                      src=""
-                      onclick="setimg()"
-                      align="right"
-                    />
-                  </td>
-                </tr>
                 <tr>
                   <td colspan="2" align="center">
                     <div id="outdiv"></div>
@@ -75,29 +56,14 @@
           <tr>
             <td colspan="3" align="center">
               <div id="result"></div>
+              <div id="location"></div>
             </td>
           </tr>
         </table>
-
-        <!-- <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
-        <!-- webqr_2016 -->
-        <ins
-          class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-8418802408648518"
-          data-ad-slot="2527990541"
-          data-ad-format="auto"
-        ></ins>
-        <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
       </div>
       &nbsp;
       <div id="footer">
-        <h5 align="center">
-          Copyright &copy; 2011
-          <a target="_blank" href="http://www.lazarsoft.info">Lazar Laszlo</a>
-        </h5>
+        <h5 align="center"></h5>
       </div>
     </div>
     <canvas id="qr-canvas" width="800" height="600"></canvas>
@@ -120,29 +86,6 @@
         "</div>";
 
       var vidhtml = '<video id="v" autoplay></video>';
-
-      // function dragenter(e) {
-      //   e.stopPropagation();
-      //   e.preventDefault();
-      // }
-
-      // function dragover(e) {
-      //   e.stopPropagation();
-      //   e.preventDefault();
-      // }
-      // function drop(e) {
-      //   e.stopPropagation();
-      //   e.preventDefault();
-
-      //   var dt = e.dataTransfer;
-      //   var files = dt.files;
-      //   if (files.length > 0) {
-      //     handleFiles(files);
-      //   } else if (dt.getData("URL")) {
-      //     qrcode.decode(dt.getData("URL"));
-      //   }
-      // }
-
       function handleFiles(f) {
         var o = [];
 
@@ -159,12 +102,12 @@
         }
       }
       function scb(position) {
-        document.getElementById("result").innerHTML = `<p>${
+        document.getElementById("location").innerHTML = `<p>${
           position.coords.latitude
         },   ${position.coords.longitude}</p>`;
       }
       function fcb(position) {
-        document.getElementById("result").innerHTML = `error`;
+        document.getElementById("location").innerHTML = `error`;
       }
       initGeo();
       function initGeo() {
@@ -172,7 +115,7 @@
           navigator.geolocation.getCurrentPosition(scb, fcb);
         } else {
           document.getElementById(
-            "result"
+            "location"
           ).innerHTML = `Geolocation is not supported`;
         }
       }
@@ -310,10 +253,6 @@
             error
           );
         }
-
-        document.getElementById("qrimg").style.opacity = 0.2;
-        document.getElementById("webcamimg").style.opacity = 1.0;
-
         stype = 1;
         setTimeout(captureToCanvas, 500);
       }
@@ -321,9 +260,6 @@
       function setimg() {
         document.getElementById("result").innerHTML = "";
         if (stype == 2) return;
-        document.getElementById("outdiv").innerHTML = imghtml;
-        //document.getElementById("qrimg").src="qrimg.png";
-        //document.getElementById("webcamimg").src="webcam2.png";
         document.getElementById("qrimg").style.opacity = 1.0;
         document.getElementById("webcamimg").style.opacity = 0.2;
         var qrfile = document.getElementById("qrfile");
@@ -332,7 +268,7 @@
         qrfile.addEventListener("drop", drop, false);
         stype = 2;
       }
-      // load();
+      load();
     </script>
   </body>
 </html>

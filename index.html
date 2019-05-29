@@ -77,34 +77,12 @@
       var moz = false;
       var v = null;
 
-      var imghtml =
-        '<div id="qrfile"><canvas id="out-canvas" width="320" height="240"></canvas>' +
-        '<div id="imghelp">drag and drop a QRCode here' +
-        "<br>or select a file" +
-        '<input type="file" onchange="handleFiles(this.files)"/>' +
-        "</div>" +
-        "</div>";
-
       var vidhtml = '<video id="v" autoplay></video>';
-      function handleFiles(f) {
-        var o = [];
 
-        for (var i = 0; i < f.length; i++) {
-          var reader = new FileReader();
-          reader.onload = (function(theFile) {
-            return function(e) {
-              gCtx.clearRect(0, 0, gCanvas.width, gCanvas.height);
-
-              qrcode.decode(e.target.result);
-            };
-          })(f[i]);
-          reader.readAsDataURL(f[i]);
-        }
-      }
       function scb(position) {
         document.getElementById("location").innerHTML = `<p>${
           position.coords.latitude
-        },   ${position.coords.longitude}</p>`;
+        },   ${position.coords.longitude}, ${position.coords.altitude}</p>`;
       }
       function fcb(position) {
         document.getElementById("location").innerHTML = `error`;
@@ -257,17 +235,17 @@
         setTimeout(captureToCanvas, 500);
       }
 
-      function setimg() {
-        document.getElementById("result").innerHTML = "";
-        if (stype == 2) return;
-        document.getElementById("qrimg").style.opacity = 1.0;
-        document.getElementById("webcamimg").style.opacity = 0.2;
-        var qrfile = document.getElementById("qrfile");
-        qrfile.addEventListener("dragenter", dragenter, false);
-        qrfile.addEventListener("dragover", dragover, false);
-        qrfile.addEventListener("drop", drop, false);
-        stype = 2;
-      }
+      // function setimg() {
+      //   document.getElementById("result").innerHTML = "";
+      //   if (stype == 2) return;
+      //   document.getElementById("qrimg").style.opacity = 1.0;
+      //   document.getElementById("webcamimg").style.opacity = 0.2;
+      //   var qrfile = document.getElementById("qrfile");
+      //   qrfile.addEventListener("dragenter", dragenter, false);
+      //   qrfile.addEventListener("dragover", dragover, false);
+      //   qrfile.addEventListener("drop", drop, false);
+      //   stype = 2;
+      // }
       load();
     </script>
   </body>

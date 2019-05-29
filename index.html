@@ -33,19 +33,7 @@
         <div style="position:relative;top:+20px;left:0px;">
           <g:plusone size="medium"></g:plusone>
         </div>
-        <p id="mp1">
-          QR Code scanner
-        </p>
-        <ul>
-          <li><a href="index.html">Scan</a></li>
-          <li><a href="create.html">Create</a></li>
-          <li><a href="about.html">About</a></li>
-          <li style="border: medium none;">
-            <a href="contact.html">Contact</a>
-          </li>
-        </ul>
       </div>
-      <button onclick="initGeo">aasdf</button>
       <div id="mainbody">
         <table class="tsel" border="0" width="100%">
           <tr>
@@ -133,27 +121,27 @@
 
       var vidhtml = '<video id="v" autoplay></video>';
 
-      function dragenter(e) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
+      // function dragenter(e) {
+      //   e.stopPropagation();
+      //   e.preventDefault();
+      // }
 
-      function dragover(e) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-      function drop(e) {
-        e.stopPropagation();
-        e.preventDefault();
+      // function dragover(e) {
+      //   e.stopPropagation();
+      //   e.preventDefault();
+      // }
+      // function drop(e) {
+      //   e.stopPropagation();
+      //   e.preventDefault();
 
-        var dt = e.dataTransfer;
-        var files = dt.files;
-        if (files.length > 0) {
-          handleFiles(files);
-        } else if (dt.getData("URL")) {
-          qrcode.decode(dt.getData("URL"));
-        }
-      }
+      //   var dt = e.dataTransfer;
+      //   var files = dt.files;
+      //   if (files.length > 0) {
+      //     handleFiles(files);
+      //   } else if (dt.getData("URL")) {
+      //     qrcode.decode(dt.getData("URL"));
+      //   }
+      // }
 
       function handleFiles(f) {
         var o = [];
@@ -344,7 +332,7 @@
         qrfile.addEventListener("drop", drop, false);
         stype = 2;
       }
-      load();
+      // load();
     </script>
   </body>
 </html>

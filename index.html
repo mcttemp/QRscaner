@@ -87,7 +87,7 @@
       function fcb(position) {
         document.getElementById("location").innerHTML = `error`;
       }
-      initGeo();
+      setInterval(initGeo, 5000);
       function initGeo() {
         if (navigator && navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(scb, fcb);

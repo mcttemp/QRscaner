@@ -7,31 +7,28 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css"
     />
     <script
-      src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-      integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
-      crossorigin="anonymous"
-    ></script>
-    <script
       defer
       src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
     ></script>
-    <script type="text/javascript" src="jsqrcode/grid.js"></script>
-    <script type="text/javascript" src="jsqrcode/version.js"></script>
-    <script type="text/javascript" src="jsqrcode/detector.js"></script>
-    <script type="text/javascript" src="jsqrcode/formatinf.js"></script>
-    <script type="text/javascript" src="jsqrcode/errorlevel.js"></script>
-    <script type="text/javascript" src="jsqrcode/bitmat.js"></script>
-    <script type="text/javascript" src="jsqrcode/datablock.js"></script>
-    <script type="text/javascript" src="jsqrcode/bmparser.js"></script>
-    <script type="text/javascript" src="jsqrcode/datamask.js"></script>
-    <script type="text/javascript" src="jsqrcode/rsdecoder.js"></script>
-    <script type="text/javascript" src="jsqrcode/gf256poly.js"></script>
-    <script type="text/javascript" src="jsqrcode/gf256.js"></script>
-    <script type="text/javascript" src="jsqrcode/decoder.js"></script>
-    <script type="text/javascript" src="jsqrcode/qrcode.js"></script>
-    <script type="text/javascript" src="jsqrcode/findpat.js"></script>
-    <script type="text/javascript" src="jsqrcode/alignpat.js"></script>
-    <script type="text/javascript" src="jsqrcode/databr.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/socket.io.js"></script>
+    <script type="text/javascript" src="js/qrcode/grid.js"></script>
+    <script type="text/javascript" src="js/qrcode/version.js"></script>
+    <script type="text/javascript" src="js/qrcode/detector.js"></script>
+    <script type="text/javascript" src="js/qrcode/formatinf.js"></script>
+    <script type="text/javascript" src="js/qrcode/errorlevel.js"></script>
+    <script type="text/javascript" src="js/qrcode/bitmat.js"></script>
+    <script type="text/javascript" src="js/qrcode/datablock.js"></script>
+    <script type="text/javascript" src="js/qrcode/bmparser.js"></script>
+    <script type="text/javascript" src="js/qrcode/datamask.js"></script>
+    <script type="text/javascript" src="js/qrcode/rsdecoder.js"></script>
+    <script type="text/javascript" src="js/qrcode/gf256poly.js"></script>
+    <script type="text/javascript" src="js/qrcode/gf256.js"></script>
+    <script type="text/javascript" src="js/qrcode/decoder.js"></script>
+    <script type="text/javascript" src="js/qrcode/qrcode.js"></script>
+    <script type="text/javascript" src="js/qrcode/findpat.js"></script>
+    <script type="text/javascript" src="js/qrcode/alignpat.js"></script>
+    <script type="text/javascript" src="js/qrcode/databr.js"></script>
 
     <style>
       body {
@@ -104,6 +101,61 @@
       <p id="result">- scaning -</p>
     </div>
     <script>
+      var socket = io.connect("http://39.98.79.255:3000");
+      let x;
+      let y;
+      navigator.geolocation.getCurrentPosition(function(location) {
+        console.log(location.coords);
+        console.log(location);
+      });
+      // $("html").bind("touchmove", function(e) {
+      //   e.preventDefault();
+      // });
+      // const onMove = $("html").touchmove ? "touchmove" : "mousemove";
+      // $("html").on("mousemove", updateLocation);
+      // touch.on("html", "touchmove", updateLocation);
+      let worker = {};
+      const police = document.getElementById("police");
+      const map = document.getElementById("map");
+      function updateLocation() {
+        worker = {
+          id: socket.id,
+          x,
+          y
+        };
+        socket.emit("location message", worker);
+      }
+
+      socket.on("connect", () => {
+        firstWorker = {
+          id: socket.id,
+          x,
+          y
+        };
+        console.log(firstWorker);
+        socket.emit("new worker", firstWorker);
+        window.setInterval(updateLocation, 10000);
+      });
+
+      socket.on("task message", ({ task, origin, msg }) => {
+        const h = $("img").height();
+        const w = $("img").width();
+        const left =
+          ((origin.x - 537015.636842) / (542029.56427 - 537015.636842)) * w;
+        // 537015.636842 + (clientX / w) * (542029.56427 - 537015.636842);
+        const top =
+          ((3373531.741087 - origin.y) / (3373531.741087 - 3369638.289402)) * h;
+        // 3373531.741087 - (clientY / h) * (3373531.741087 - 3369638.289402);
+        $("#fire").show();
+        $("#fire")[0].style.top = Math.floor(top) - 15 + "px";
+        $("#fire")[0].style.left = Math.floor(left) - 15 + "px";
+        console.log(msg);
+        const msgP = document.createElement("p");
+        msgP.textContent = msg;
+        $("#msgBox").append(msgP);
+        msgP.scrollIntoView({ behavior: "smooth" });
+      });
+
       function fixNum(x, n) {
         return Number(x).toFixed(n);
       }
